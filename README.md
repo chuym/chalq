@@ -1,6 +1,6 @@
 # Chalq
 
-[![build status](https://gitlab.com/xdc/chalq/badges/master/build.svg)](https://gitlab.com/xdc/chalq/commits/master)
+[![build status](https://gitlab.com/xdc/chalq/badges/master/build.svg)](https://gitlab.com/xdc/chalq/commits/master) [![coverage report](https://gitlab.com/xdc/chalq/badges/master/coverage.svg)](https://gitlab.com/xdc/chalq/commits/master)
 
 A work queue with flexible backends.
 
