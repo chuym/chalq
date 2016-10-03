@@ -1,5 +1,7 @@
 # Chalq
 
+[![build status](https://gitlab.com/xdc/chalq/badges/master/build.svg)](https://gitlab.com/xdc/chalq/commits/master)
+
 A work queue with flexible backends.
 
 ## Install
