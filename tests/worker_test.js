@@ -1,7 +1,9 @@
 const os = require("os");
-const MemoryBroker = require("../lib/platforms/memory/broker");
-const Worker = require("../lib/worker");
 const should = require("chai").should();
+
+const MemoryBroker = require("../lib/platforms/memory/broker");
+const Task = require("../lib/task");
+const Worker = require("../lib/worker");
 
 describe("Worker", function () {
     describe("constructor", function () {
@@ -36,7 +38,23 @@ describe("Worker", function () {
     });
 
     describe("startProcess", function () {
-        it("should dequeue items from queue");
+        it("should dequeue items from queue", function (done) {
+            function handler(a, b) {
+                return new Promise(resolve => resolve(a + b));
+            }
+
+            const broker = new MemoryBroker();
+            const worker = new Worker(broker, "foo", handler, {
+                concurrency: 1
+            });
+            const task = new Task("foo", [1, 2]);
+
+            worker.should.be.instanceof(Worker);
+
+            broker.once(`foo:${task.id}:success`, done);
+
+            setTimeout(() => broker.enqueue(task), 0);
+        });
         it("should pause until new items arrive queue if empty");
         it("should abort if dequeueing throws");
         it("should stop processing if stoping process");
