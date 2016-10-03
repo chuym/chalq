@@ -5,6 +5,7 @@
         "import/no-extraneous-dependencies": [2, {"devDependencies": ["*_test.js"]}],
         "indent": [2, 4],
         "max-len": [2, 100],
+        "no-console": 0,
         "no-underscore-dangle": [2, { "allowAfterThis": true }],
         "no-param-reassign": [2, { "props": false }],
         "quotes": [2, "double"]
