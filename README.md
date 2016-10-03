@@ -64,4 +64,4 @@ Please see [CONTRIBUTING](CONTRIBUTING.md)
 
 ## License
 
-The new BSD License (BSD-3). Please see [License File](LICENSE.md) for more information.
+The new BSD License (BSD-3). Please see [License File](LICENSE) for more information.
