@@ -4,7 +4,7 @@ A work queue with flexible backends.
 
 ## Install
 
-Currently not ready to be released. You'll need to explicitly set this repository as source in your `package.json` file.
+Currently not registered in npm. You'll need to explicitly set this repository as source in your `package.json` file.
 e.g.
 
 ``` json
@@ -63,4 +63,4 @@ Please see [CONTRIBUTING](CONTRIBUTING.md)
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The new BSD License (BSD-3). Please see [License File](LICENSE.md) for more information.
