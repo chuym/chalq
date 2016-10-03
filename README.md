@@ -60,6 +60,7 @@ Please see [CONTRIBUTING](CONTRIBUTING.md)
 ## Credits
 
 - Xavier Del Castillo <xavier@xdc.im>
+- [Contributors](https://gitlab.com/xdc/chalq/graphs/master)
 
 ## License
 
