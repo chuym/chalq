@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const os = require("os");
 const should = require("chai").should();
 
@@ -44,6 +45,59 @@ describe("Worker", function () {
             }
 
             const broker = new MemoryBroker();
+            const task = new Task("foo", [1, 2]);
+            broker.enqueue(task);
+
+            const worker = new Worker(broker, "foo", handler, {
+                concurrency: 1
+            });
+
+            worker.should.be.instanceof(Worker);
+
+            broker.once(`foo:${task.id}:success`, done);
+        });
+
+        it("should ack tasks with success for successful tasks", function (done) {
+            function handler(a, b) {
+                return new Promise(resolve => resolve(a + b));
+            }
+
+            const broker = new MemoryBroker();
+            const task = new Task("foo", [1, 2]);
+            broker.enqueue(task);
+
+            const worker = new Worker(broker, "foo", handler, {
+                concurrency: 1
+            });
+
+            worker.should.be.instanceof(Worker);
+
+            broker.once(`foo:${task.id}:success`, done);
+        });
+        it("should ack tasks with failed for failed tasks", function (done) {
+            function handler() {
+                return new Promise((resolve, reject) => reject("error"));
+            }
+
+            const broker = new MemoryBroker();
+            const task = new Task("foo", [1, 2]);
+            broker.enqueue(task);
+
+            const worker = new Worker(broker, "foo", handler, {
+                concurrency: 1
+            });
+
+            worker.should.be.instanceof(Worker);
+
+            broker.once(`foo:${task.id}:failed`, done);
+        });
+
+        it("should pause until new items arrive queue if empty", function (done) {
+            function handler(a, b) {
+                return new Promise(resolve => resolve(a + b));
+            }
+
+            const broker = new MemoryBroker();
             const worker = new Worker(broker, "foo", handler, {
                 concurrency: 1
             });
@@ -51,14 +105,65 @@ describe("Worker", function () {
 
             worker.should.be.instanceof(Worker);
 
-            broker.once(`foo:${task.id}:success`, done);
+            const afterTwo = _.after(2, done);
+
+            broker.on(`foo:${task.id}:success`, afterTwo);
+
+            setTimeout(() => broker.enqueue(task), 0);
+            setTimeout(() => broker.enqueue(task), 33);
+        });
+
+        it("should abort if dequeueing rejects", function (done) {
+            function handler(a, b) {
+                return new Promise(resolve => resolve(a + b));
+            }
+
+            const broker = new MemoryBroker();
+            broker.dequeue = () => Promise.reject("Failed to dequeue!");
+
+            const worker = new Worker(broker, "foo", handler, {
+                concurrency: 1
+            });
+            const task = new Task("foo", [1, 2]);
+
+            worker.should.be.instanceof(Worker);
+
+            broker.enqueue(task);
+
+            // Give some time for the enqueueing operation to fail.
+            setTimeout(() => {
+                const status = worker._processes[0].status();
+                status.should.equal("stopped");
+                done();
+            }, 10);
+        });
+
+        it("should stop processing if stoping process", function (done) {
+            function handler(a, b) {
+                return new Promise(resolve => resolve(a + b));
+            }
+
+            const broker = new MemoryBroker();
+            const worker = new Worker(broker, "foo", handler, {
+                concurrency: 1
+            });
+            const task = new Task("foo", [1, 2]);
+
+            worker.should.be.instanceof(Worker);
+
+            broker.once(`foo:${task.id}:success`, () => {
+                worker.stop();
+                worker._processes.forEach(p => p.status().should.equal("stopped"));
+                broker.on(`foo:${task.id}:success`, () => done("Should be called after stop"));
+
+                broker.enqueue(task);
+                setTimeout(() => {
+                    broker._getQueue("foo").should.have.lengthOf(1);
+                    done();
+                }, 33);
+            });
 
             setTimeout(() => broker.enqueue(task), 0);
         });
-        it("should pause until new items arrive queue if empty");
-        it("should abort if dequeueing throws");
-        it("should stop processing if stoping process");
-        it("should ack tasks with success for successful tasks");
-        it("should ack tasks with failed for failed tasks");
     });
 });
