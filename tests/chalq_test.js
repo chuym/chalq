@@ -1,8 +1,9 @@
 const _ = require("lodash");
 const os = require("os");
+const rewire = require("rewire");
 const should = require("chai").should();
 
-const Chalq = require("../lib/chalq");
+const Chalq = rewire("../lib/chalq");
 const Task = require("../lib/task");
 
 describe("Chalq", function () {
@@ -103,6 +104,38 @@ describe("Chalq", function () {
 
                 Chalq.foo.startWorker();
             }).catch(done);
+        });
+
+        it("should clear private events once task is finished", function (done) {
+            const broker = Chalq.__get__("broker");
+
+            Chalq.registerTask("foo", v => Promise.resolve(v));
+
+            Chalq.foo.run([5]).then((task) => {
+                task.should.be.instanceof(Task);
+                task.on("success", () => {
+                    ["success", "failed"].forEach((state) => {
+                        broker.listenerCount(`${task.name}:${task.id}:${state}`).should.equal(0);
+                    });
+                    done();
+                });
+
+                Chalq.foo.startWorker();
+            }).catch(done);
+        });
+    });
+
+    describe("<event_related_functions>", function () {
+        beforeEach(function () {
+            Chalq.initialize();
+        });
+
+        it("should proxy event related functions", function (done) {
+            Chalq.registerTask("foo", v => Promise.resolve(v));
+
+            Chalq.on("foo:new", done);
+
+            Chalq.foo.run([5]);
         });
     });
 });
