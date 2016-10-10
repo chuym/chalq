@@ -1,4 +1,5 @@
 const _ = require("lodash");
+const os = require("os");
 const should = require("chai").should();
 
 const Chalq = require("../lib/chalq");
@@ -45,6 +46,36 @@ describe("Chalq", function () {
         });
     });
 
+    describe("<task>.startWorker", function () {
+        beforeEach(function () {
+            Chalq.initialize();
+        });
+
+        it("should start a worker for a registered task", function () {
+            Chalq.registerTask("foo", Promise.resolve);
+
+            const worker = Chalq.foo.startWorker();
+
+            worker._processes.should.have.lengthOf(os.cpus().length);
+            worker._processes.forEach(p => p.status().should.equal("started"));
+        });
+
+        it("should start a worker for a registered task with passed options", function () {
+            Chalq.registerTask("foo", Promise.resolve);
+
+            const worker = Chalq.foo.startWorker({ concurrency: 2 });
+
+            worker._processes.should.have.lengthOf(2);
+            worker._processes.forEach(p => p.status().should.equal("started"));
+        });
+
+        it("should throw for a non existant task", function () {
+            should.Throw(() => {
+                Chalq.foo.startWorker({ concurrency: 2 });
+            }, "Cannot read property 'startWorker' of undefined");
+        });
+    });
+
     describe("<task>.run", function () {
         beforeEach(function () {
             Chalq.initialize();
@@ -56,6 +87,21 @@ describe("Chalq", function () {
             Chalq.foo.run([5]).then((task) => {
                 task.should.be.instanceof(Task);
                 done();
+            }).catch(done);
+        });
+
+        it("should emit success event when task is successful", function (done) {
+            Chalq.registerTask("foo", v => Promise.resolve(v));
+
+
+            Chalq.foo.run([5]).then((task) => {
+                task.should.be.instanceof(Task);
+                task.on("success", (result) => {
+                    result.should.equal(5);
+                    done();
+                });
+
+                Chalq.foo.startWorker();
             }).catch(done);
         });
     });
