@@ -6,6 +6,8 @@ const MemoryBroker = require("../lib/platforms/memory/broker");
 const Task = require("../lib/task");
 const Worker = require("../lib/worker");
 
+// Note, several of these tests tap into private properties and methods. The usage depicted in these
+// tests are not ideal and should not be used as example.
 describe("Worker", function () {
     describe("constructor", function () {
         it("should throw if broker is not a Broker instance", function () {
