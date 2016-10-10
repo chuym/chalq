@@ -56,7 +56,7 @@ describe("Worker", function () {
 
             worker.should.be.instanceof(Worker);
 
-            broker.once(`foo:${task.id}:success`, done);
+            broker.once(`foo:${task.id}:success`, () => done());
         });
 
         it("should ack tasks with success for successful tasks", function (done) {
@@ -74,7 +74,7 @@ describe("Worker", function () {
 
             worker.should.be.instanceof(Worker);
 
-            broker.once(`foo:${task.id}:success`, done);
+            broker.once(`foo:${task.id}:success`, () => done());
         });
         it("should ack tasks with failed for failed tasks", function (done) {
             function handler() {
@@ -91,7 +91,7 @@ describe("Worker", function () {
 
             worker.should.be.instanceof(Worker);
 
-            broker.once(`foo:${task.id}:failed`, done);
+            broker.once(`foo:${task.id}:failed`, () => done());
         });
 
         it("should pause until new items arrive queue if empty", function (done) {
@@ -107,7 +107,7 @@ describe("Worker", function () {
 
             worker.should.be.instanceof(Worker);
 
-            const afterTwo = _.after(2, done);
+            const afterTwo = _.after(2, () => done());
 
             broker.on(`foo:${task.id}:success`, afterTwo);
 
