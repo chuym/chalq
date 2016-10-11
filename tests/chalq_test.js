@@ -1,6 +1,7 @@
 const _ = require("lodash");
 const os = require("os");
 const rewire = require("rewire");
+const sinon = require("sinon");
 const should = require("chai").should();
 
 const Chalq = rewire("../lib/chalq");
@@ -138,6 +139,37 @@ describe("Chalq", function () {
 
                 Chalq.foo.startWorker();
             }).catch(done);
+        });
+
+        it("should run a task with retry option set", function (done) {
+            let n = 0;
+
+            Chalq.registerTask("foo", (result) => {
+                n += 1;
+                if (n < 3) {
+                    return Promise.reject("under 3");
+                }
+
+                return Promise.resolve(result);
+            });
+
+            const failedHandler = sinon.spy();
+            const successHandler = (result) => {
+                try {
+                    sinon.assert.callCount(failedHandler, 2);
+                    result.should.equal(17);
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            };
+
+            Chalq.foo.run([17], { retries: 5 }).then((task) => {
+                Chalq.on(`foo:${task.id}:failed`, failedHandler);
+                Chalq.on(`foo:${task.id}:success`, successHandler);
+            }).then(() => {
+                Chalq.foo.startWorker();
+            });
         });
     });
 
