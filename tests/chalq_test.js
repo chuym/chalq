@@ -190,7 +190,6 @@ describe("Chalq", function () {
             Chalq.registerTask("foo", Promise.resolve);
 
             const promises = _.times(6, n => Chalq.foo.run([n]));
-            console.log(promises.length);
 
             Promise.all(promises)
                 .then(() => {
