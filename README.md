@@ -19,8 +19,6 @@ e.g.
 
 ## Usage
 
-### Creating tasks
-
 ``` javascript
 const Chalq = require("chalq");
 
@@ -43,6 +41,14 @@ task.on("complete", function (result) {
 task.on('failed', function (err) {
     console.log(err); // Failure reason
 });
+
+// To find out how many tasks are currently enqueued
+Chalq.my_task.count(); // The number of enqueued tasks.
+
+// To find a particular task you can call the `find` function.
+// Note that the find operation can be intensive depending the backend broker used. In some cases
+// it might do a full search rather than a indexed search.
+Chalq.my_task.find('<my_task_id>');
 ```
 
 ## Change log
