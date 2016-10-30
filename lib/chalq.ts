@@ -1,14 +1,14 @@
-const _ = require("lodash");
+import * as _ from "lodash";
 
-const MemoryBroker = require("./platforms/memory/broker");
+import MemoryBroker from "./platforms/memory/broker";
 
-const Task = require("./task");
-const Worker = require("./worker");
+import { Task } from "./task";
+import Worker from "./worker";
 
 let broker;
 let tasks = {};
 
-const KNOWN_STATES = ["failed", "success"];
+const KNOWN_STATES : string[] = ["failed", "success"];
 
 const otherStates = _.memoize(state => _.without(KNOWN_STATES, state));
 

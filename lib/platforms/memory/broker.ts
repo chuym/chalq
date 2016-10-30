@@ -1,20 +1,18 @@
-const EventEmitter = require("events");
-const Task = require("../../task");
+import { EventEmitter } from "events";
+import { Task, SerializedTask } from "../../task";
 
 class Broker extends EventEmitter {
+    private queues : Map<String, Array<SerializedTask>>
+
     constructor() {
         super();
         this.setMaxListeners(Infinity);
-        this.queues = {};
+        this.queues = new Map<String, Array<SerializedTask>>();
     }
 
-    enqueue(task) {
+    enqueue(task : Task) : Promise<Task> {
         return new Promise((resolve) => {
-            if (!(task instanceof Task)) {
-                throw new Error("task is not a Task instance");
-            }
-
-            this._getQueue(task.name)
+            this.getQueue(task.name)
                 .push(task.serialize());
 
             this.emit(`${task.name}:new`);
@@ -23,18 +21,18 @@ class Broker extends EventEmitter {
         });
     }
 
-    dequeue(name) {
+    dequeue(name : string) : Promise<Task> {
         return new Promise((resolve) => {
-            resolve(this._getQueue(name).shift());
+            resolve(this.getQueue(name).shift());
         });
     }
 
-    tasksCount(name) {
-        return this._getQueue(name).length;
+    tasksCount(name : string) : Promise<number> {
+        return Promise.resolve(this.getQueue(name).length);
     }
 
     findTask(name, id) {
-        const serialized = this._getQueue(name).find(t => t.id === id);
+        const serialized = this.getQueue(name).find(t => t.id === id);
 
         if (serialized === undefined) return null;
 
@@ -51,13 +49,13 @@ class Broker extends EventEmitter {
         }
     }
 
-    _getQueue(name) {
-        if (!this.queues[name]) {
-            this.queues[name] = [];
+    private getQueue(name : string) : Array<SerializedTask> {
+        if (!this.queues.has(name)) {
+            this.queues.set(name, []);
         }
 
-        return this.queues[name];
+        return this.queues.get(name);
     }
 }
 
-module.exports = Broker;
+export default Broker;

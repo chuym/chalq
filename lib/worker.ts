@@ -1,8 +1,18 @@
 const _ = require("lodash");
 const os = require("os");
 
+interface WorkerOptions {
+    concurrency : number
+}
+
 class Worker {
-    constructor(broker, taskName, handler, opts = {}) {
+    private broker;
+    private handler;
+    private taskName;
+    private _processes;
+    private concurrency;
+
+    constructor(broker, taskName, handler, opts : WorkerOptions) {
         if (!broker) throw new Error("Missing broker");
         if (!_.isString(taskName)) throw new Error("Missing task name");
         if (!_.isFunction(handler)) throw new Error("Missing handler");
@@ -63,4 +73,4 @@ class Worker {
     }
 }
 
-module.exports = Worker;
+export default Worker;
