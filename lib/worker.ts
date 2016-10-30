@@ -12,7 +12,7 @@ class Worker {
     private _processes;
     private concurrency;
 
-    constructor(broker, taskName, handler, opts : WorkerOptions) {
+    constructor(broker, taskName, handler, opts = <WorkerOptions>{}) {
         if (!broker) throw new Error("Missing broker");
         if (!_.isString(taskName)) throw new Error("Missing task name");
         if (!_.isFunction(handler)) throw new Error("Missing handler");

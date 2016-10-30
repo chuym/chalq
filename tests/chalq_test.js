@@ -4,8 +4,8 @@ const rewire = require("rewire");
 const sinon = require("sinon");
 const should = require("chai").should();
 
-const Chalq = rewire("../lib/chalq");
-const Task = require("../lib/task");
+const Chalq = rewire("../dist/chalq");
+const Task = require("../dist/task").default;
 
 describe("Chalq", function () {
     beforeEach(function () {
@@ -224,10 +224,8 @@ describe("Chalq", function () {
             const promises = _.times(6, n => Chalq.foo.run([n]));
 
             Promise.all(promises)
-                .then(() => {
-                    Chalq.foo.count().should.equal(6);
-                })
-                .then(done)
+                .then(() => Chalq.foo.count().then(count => count.should.equal(6)))
+                .then(() => done())
                 .catch(done);
         });
 

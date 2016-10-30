@@ -2,7 +2,7 @@ import * as _ from "lodash";
 
 import MemoryBroker from "./platforms/memory/broker";
 
-import { Task } from "./task";
+import Task from "./task";
 import Worker from "./worker";
 
 let broker;

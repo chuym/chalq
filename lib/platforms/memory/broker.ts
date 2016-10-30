@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { Task, SerializedTask } from "../../task";
+import Task, { SerializedTask } from "../../task";
 
 class Broker extends EventEmitter {
     private queues : Map<String, Array<SerializedTask>>

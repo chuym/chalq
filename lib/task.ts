@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import { EventEmitter } from "events";
-import { v4 } from "node-uuid";
+import { v4 } from "uuid";
 
 interface TaskOptions {
     retries? : number
@@ -47,4 +47,4 @@ class Task extends EventEmitter {
     }
 }
 
-export { Task, SerializedTask };
+export { Task as default, SerializedTask };
