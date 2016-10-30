@@ -4,7 +4,7 @@
   "description": "a worker queue for nodejs",
   "main": "index.js",
   "scripts": {
-    "test": "istanbul cover _mocha tests/**/*_test.js"
+    "test": "tsc && istanbul cover _mocha tests/**/*_test.js"
   },
   "author": "Xavier Del Castillo <xavier@xdc.im>",
   "license": "ISC",
@@ -22,6 +22,7 @@
     "istanbul": "0.4.5",
     "mocha": "3.1.0",
     "rewire": "2.5.2",
-    "sinon": "^1.17.6"
+    "sinon": "^1.17.6",
+    "typescript": "^2.0.6"
   }
 }

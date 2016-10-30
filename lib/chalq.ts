@@ -102,4 +102,6 @@ const proxy = new Proxy(Chalq, {
     }
 });
 
+// We export the module with commonjs syntax so that the module can be required without having to
+// access a `default` property, see: https://github.com/Microsoft/TypeScript/issues/5844
 module.exports = proxy;
