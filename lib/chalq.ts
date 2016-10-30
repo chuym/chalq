@@ -2,18 +2,24 @@ import * as _ from "lodash";
 
 import MemoryBroker from "./platforms/memory/broker";
 
-import Task from "./task";
+import { BrokerConfig } from "./broker";
+
+import Task, { TaskOptions, TaskHandler } from "./task";
 import Worker from "./worker";
 
 let broker;
 let tasks = {};
 
-const KNOWN_STATES : string[] = ["failed", "success"];
+const KNOWN_STATES = ["failed", "success"];
 
 const otherStates = _.memoize(state => _.without(KNOWN_STATES, state));
 
+interface ChalqConfig {
+    broker: BrokerConfig
+}
+
 class Chalq {
-    static initialize(config = { broker: { name: "memory" } }) {
+    static initialize(config = <ChalqConfig>{ broker: { name: "memory" } }) : void {
         if (broker) throw new Error("Chalq is already initialized");
 
         switch (config.broker.name) {
@@ -25,7 +31,7 @@ class Chalq {
         }
     }
 
-    static registerTask(name, handler) {
+    static registerTask(name : string, handler : TaskHandler) : void {
         if (!broker) throw new Error("Chalq has not been initialized");
         if (tasks[name]) throw new Error("A task with this name has already been registered");
         if (!_.isFunction(handler)) throw new Error("Handler is not a function");
@@ -47,41 +53,39 @@ class Chalq {
         });
     }
 
-    static runTask(name, args, opts = {}) {
+    static async runTask(name : string, args : Array<any>, opts = <TaskOptions>{} ) : Promise<Task> {
         if (!broker) throw new Error("Chalq has not been initialized");
         if (!tasks[name]) throw new Error(`Task '${name}' is not defined`);
 
         const task = new Task(name, args, opts);
 
-        return broker.enqueue(task)
-            .then(() => {
-                let handlers = new Map();
+        const result = await broker.enqueue(task);
+        let handlers = new Map();
 
-                handlers = ["failed", "success"].reduce((map, state) => {
-                    map.set(state, (result) => {
-                        const others = otherStates(state);
+        handlers = ["failed", "success"].reduce((map, state) => {
+            map.set(state, (result) => {
+                const others = otherStates(state);
 
-                        others.forEach(s => broker.removeListener(`${name}:${task.id}:${s}`,
-                                                                  handlers.get(s)));
-                        task.emit(state, result);
-                    });
-
-                    return map;
-                }, handlers);
-
-                ["failed", "success"].forEach((state) => {
-                    broker.once(`${name}:${task.id}:${state}`, handlers.get(state));
-                });
-
-                return task;
+                others.forEach(s => broker.removeListener(`${name}:${task.id}:${s}`,
+                    handlers.get(s)));
+                task.emit(state, result);
             });
+
+            return map;
+        }, handlers);
+
+        ["failed", "success"].forEach((state) => {
+            broker.once(`${name}:${task.id}:${state}`, handlers.get(state));
+        });
+
+        return result;
     }
 
-    static isReady() {
+    static isReady() : Boolean {
         return !!broker;
     }
 
-    static destroy() {
+    static destroy() : void {
         broker = null;
         tasks = {};
     }

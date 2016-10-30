@@ -13,12 +13,13 @@ interface SerializedTask {
     opts : TaskOptions
 }
 
+interface TaskHandler { (...args : Array<any>) : Promise<any> };
 
 class Task extends EventEmitter {
     public id : string
     public name : string
-    private args : Array<any>
-    private opts : TaskOptions
+    public args : Array<any>
+    public opts : TaskOptions
 
     constructor(name : string, args : Array<any>, opts : TaskOptions) {
         super();
@@ -47,4 +48,4 @@ class Task extends EventEmitter {
     }
 }
 
-export { Task as default, SerializedTask };
+export { Task as default, SerializedTask, TaskOptions, TaskHandler };

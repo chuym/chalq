@@ -1,7 +1,8 @@
 import { EventEmitter } from "events";
 import Task, { SerializedTask } from "../../task";
+import Broker from "../../broker" ;
 
-class Broker extends EventEmitter {
+class MemoryBroker extends Broker {
     private queues : Map<String, Array<SerializedTask>>
 
     constructor() {
@@ -27,19 +28,19 @@ class Broker extends EventEmitter {
         });
     }
 
-    tasksCount(name : string) : Promise<number> {
+    tasksCount(name : string) : Promise<Number> {
         return Promise.resolve(this.getQueue(name).length);
     }
 
-    findTask(name, id) {
+    findTask(name : string, id : string) : Promise<Task> {
         const serialized = this.getQueue(name).find(t => t.id === id);
 
-        if (serialized === undefined) return null;
+        if (serialized === undefined) return Promise.resolve(null);
 
-        return Task.unserialize(serialized);
+        return Promise.resolve(Task.unserialize(serialized));
     }
 
-    ack(status, task, result) {
+    ack(status : string, task : Task, result : any) : void {
         this.emit(`${task.name}:${task.id}:${status}`, result);
 
         if (status === "failed" && task.opts.retries > 0) {
@@ -58,4 +59,4 @@ class Broker extends EventEmitter {
     }
 }
 
-export default Broker;
+export default MemoryBroker;
