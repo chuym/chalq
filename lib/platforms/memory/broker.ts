@@ -1,9 +1,9 @@
 import { EventEmitter } from "events";
 import Task, { SerializedTask } from "../../task";
-import Broker from "../../broker" ;
+import Broker from "../../broker";
 
 class MemoryBroker extends Broker {
-    private queues : Map<String, Array<SerializedTask>>
+    private queues: Map<String, Array<SerializedTask>>
 
     constructor() {
         super();
@@ -11,7 +11,7 @@ class MemoryBroker extends Broker {
         this.queues = new Map<String, Array<SerializedTask>>();
     }
 
-    enqueue(task : Task) : Promise<Task> {
+    enqueue(task: Task): Promise<Task> {
         return new Promise((resolve) => {
             this.getQueue(task.name)
                 .push(task.serialize());
@@ -22,17 +22,17 @@ class MemoryBroker extends Broker {
         });
     }
 
-    dequeue(name : string) : Promise<Task> {
+    dequeue(name: string): Promise<Task> {
         return new Promise((resolve) => {
             resolve(this.getQueue(name).shift());
         });
     }
 
-    tasksCount(name : string) : Promise<Number> {
+    tasksCount(name: string): Promise<Number> {
         return Promise.resolve(this.getQueue(name).length);
     }
 
-    findTask(name : string, id : string) : Promise<Task> {
+    findTask(name: string, id: string): Promise<Task> {
         const serialized = this.getQueue(name).find(t => t.id === id);
 
         if (serialized === undefined) return Promise.resolve(null);
@@ -40,7 +40,7 @@ class MemoryBroker extends Broker {
         return Promise.resolve(Task.unserialize(serialized));
     }
 
-    ack(status : string, task : Task, result : any) : void {
+    ack(status: string, task: Task, result: any): void {
         this.emit(`${task.name}:${task.id}:${status}`, result);
 
         if (status === "failed" && task.opts.retries > 0) {
@@ -50,7 +50,7 @@ class MemoryBroker extends Broker {
         }
     }
 
-    private getQueue(name : string) : Array<SerializedTask> {
+    private getQueue(name: string): Array<SerializedTask> {
         if (!this.queues.has(name)) {
             this.queues.set(name, []);
         }

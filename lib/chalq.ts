@@ -19,19 +19,19 @@ interface ChalqConfig {
 }
 
 class Chalq {
-    static initialize(config = <ChalqConfig>{ broker: { name: "memory" } }) : void {
+    static initialize(config = <ChalqConfig>{ broker: { name: "memory" } }): void {
         if (broker) throw new Error("Chalq is already initialized");
 
         switch (config.broker.name) {
-        case "memory":
-            broker = new MemoryBroker();
-            break;
-        default:
-            throw new Error("Unknown broker type");
+            case "memory":
+                broker = new MemoryBroker();
+                break;
+            default:
+                throw new Error("Unknown broker type");
         }
     }
 
-    static registerTask(name : string, handler : TaskHandler) : void {
+    static registerTask(name: string, handler: TaskHandler): void {
         if (!broker) throw new Error("Chalq has not been initialized");
         if (tasks[name]) throw new Error("A task with this name has already been registered");
         if (!_.isFunction(handler)) throw new Error("Handler is not a function");
@@ -53,7 +53,7 @@ class Chalq {
         });
     }
 
-    static async runTask(name : string, args : Array<any>, opts = <TaskOptions>{} ) : Promise<Task> {
+    static async runTask(name: string, args: Array<any>, opts = <TaskOptions>{}): Promise<Task> {
         if (!broker) throw new Error("Chalq has not been initialized");
         if (!tasks[name]) throw new Error(`Task '${name}' is not defined`);
 
@@ -81,11 +81,11 @@ class Chalq {
         return result;
     }
 
-    static isReady() : Boolean {
+    static isReady(): Boolean {
         return !!broker;
     }
 
-    static destroy() : void {
+    static destroy(): void {
         broker = null;
         tasks = {};
     }

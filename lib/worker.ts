@@ -4,22 +4,22 @@ import Broker from "./broker";
 import { TaskHandler } from "./task";
 
 interface WorkerOptions {
-    concurrency : number
+    concurrency: number
 }
 
 interface WorkerProcess {
-    stop : Function
-    status : Function
+    stop: Function
+    status: Function
 }
 
 class Worker {
-    private broker : Broker;
-    private handler : TaskHandler;
-    private taskName : string;
-    private _processes : Array<WorkerProcess>;
-    private concurrency : Number;
+    private broker: Broker;
+    private handler: TaskHandler;
+    private taskName: string;
+    private _processes: Array<WorkerProcess>;
+    private concurrency: Number;
 
-    constructor(broker : Broker, taskName : string, handler : TaskHandler, opts = <WorkerOptions>{}) {
+    constructor(broker: Broker, taskName: string, handler: TaskHandler, opts = <WorkerOptions>{}) {
         if (!broker) throw new Error("Missing broker");
         if (!_.isString(taskName)) throw new Error("Missing task name");
         if (!_.isFunction(handler)) throw new Error("Missing handler");
@@ -35,7 +35,7 @@ class Worker {
         this._processes = _.times(opts.concurrency, () => this.startProcess());
     }
 
-    startProcess() : WorkerProcess {
+    startProcess(): WorkerProcess {
         let stop = false;
 
         const broker = this.broker;
@@ -54,7 +54,7 @@ class Worker {
 
                 try {
                     const result = await handler(...task.args)
-                    broker.ack("success", task, result); 
+                    broker.ack("success", task, result);
                 } catch (err) {
                     broker.ack("failed", task, err);
                 }
@@ -69,17 +69,17 @@ class Worker {
         runNext();
 
         return {
-            stop() : void {
+            stop(): void {
                 stop = true;
                 broker.removeListener(`${name}:task:new`, runNext);
             },
-            status() : string {
+            status(): string {
                 return stop ? "stopped" : "started";
             }
         };
     }
 
-    stop() : void {
+    stop(): void {
         this._processes.forEach(p => p.stop());
     }
 }

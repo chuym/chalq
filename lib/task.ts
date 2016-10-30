@@ -3,25 +3,25 @@ import { EventEmitter } from "events";
 import { v4 } from "uuid";
 
 interface TaskOptions {
-    retries? : number
+    retries?: number
 }
 
 interface SerializedTask {
-    id : string,
-    name : string
-    args : Array<any>
-    opts : TaskOptions
+    id: string,
+    name: string
+    args: Array<any>
+    opts: TaskOptions
 }
 
-interface TaskHandler { (...args : Array<any>) : Promise<any> };
+interface TaskHandler { (...args: Array<any>): Promise<any> };
 
 class Task extends EventEmitter {
-    public id : string
-    public name : string
-    public args : Array<any>
-    public opts : TaskOptions
+    public id: string
+    public name: string
+    public args: Array<any>
+    public opts: TaskOptions
 
-    constructor(name : string, args : Array<any>, opts : TaskOptions) {
+    constructor(name: string, args: Array<any>, opts: TaskOptions) {
         super();
 
         this.id = v4();
@@ -30,7 +30,7 @@ class Task extends EventEmitter {
         this.opts = _.pick(opts, ["retries"]);
     }
 
-    serialize() : SerializedTask {
+    serialize(): SerializedTask {
         return {
             id: this.id,
             name: this.name,
@@ -39,7 +39,7 @@ class Task extends EventEmitter {
         };
     }
 
-    static unserialize(serialized : SerializedTask) : Task {
+    static unserialize(serialized: SerializedTask): Task {
         const task = new Task(serialized.name, serialized.args, serialized.opts);
 
         task.id = serialized.id;
