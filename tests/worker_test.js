@@ -2,9 +2,9 @@ const _ = require("lodash");
 const os = require("os");
 const should = require("chai").should();
 
-const MemoryBroker = require("../lib/platforms/memory/broker");
-const Task = require("../lib/task");
-const Worker = require("../lib/worker");
+const MemoryBroker = require("../dist/platforms/memory/broker").default;
+const Task = require("../dist/task").default;
+const Worker = require("../dist/worker").default;
 
 // Note, several of these tests tap into private properties and methods. The usage depicted in these
 // tests are not ideal and should not be used as example.
@@ -160,7 +160,7 @@ describe("Worker", function () {
 
                 broker.enqueue(task);
                 setTimeout(() => {
-                    broker._getQueue("foo").should.have.lengthOf(1);
+                    broker.getQueue("foo").should.have.lengthOf(1);
                     done();
                 }, 33);
             });

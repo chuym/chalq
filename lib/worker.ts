@@ -1,8 +1,25 @@
-const _ = require("lodash");
-const os = require("os");
+import * as _ from "lodash";
+import * as os from "os";
+import Broker from "./broker";
+import { TaskHandler } from "./task";
+
+interface WorkerOptions {
+    concurrency: number
+}
+
+interface WorkerProcess {
+    stop: Function
+    status: Function
+}
 
 class Worker {
-    constructor(broker, taskName, handler, opts = {}) {
+    private broker: Broker;
+    private handler: TaskHandler;
+    private taskName: string;
+    private _processes: Array<WorkerProcess>;
+    private concurrency: Number;
+
+    constructor(broker: Broker, taskName: string, handler: TaskHandler, opts = <WorkerOptions>{}) {
         if (!broker) throw new Error("Missing broker");
         if (!_.isString(taskName)) throw new Error("Missing task name");
         if (!_.isFunction(handler)) throw new Error("Missing handler");
@@ -15,52 +32,56 @@ class Worker {
         this.handler = handler;
         this.taskName = taskName;
 
-        this._processes = _.times(opts.concurrency, _.bind(this.startProcess, this));
+        this._processes = _.times(opts.concurrency, () => this.startProcess());
     }
 
-    startProcess() {
+    startProcess(): WorkerProcess {
         let stop = false;
 
         const broker = this.broker;
         const handler = this.handler;
         const name = this.taskName;
 
-        function runNext() {
+        async function runNext() {
             if (stop) return;
 
-            broker.dequeue(name).then((task) => {
+            try {
+                const task = await broker.dequeue(name);
                 if (!task) {
                     broker.once(`${name}:new`, runNext);
                     return;
                 }
 
-                handler(...task.args)
-                    .then(_.bind(broker.ack, broker, "success", task))
-                    .catch(_.bind(broker.ack, broker, "failed", task))
-                    .then(runNext, runNext);
-            }).catch((err) => {
+                try {
+                    const result = await handler(...task.args)
+                    broker.ack("success", task, result);
+                } catch (err) {
+                    broker.ack("failed", task, err);
+                }
+                runNext();
+            } catch (err) {
                 console.log("Failed to dequeue next task, worker exiting.", err);
                 stop = true;
                 broker.removeListener(`${name}:task:new`, runNext);
-            });
+            };
         }
 
         runNext();
 
         return {
-            stop() {
+            stop(): void {
                 stop = true;
                 broker.removeListener(`${name}:task:new`, runNext);
             },
-            status() {
+            status(): string {
                 return stop ? "stopped" : "started";
             }
         };
     }
 
-    stop() {
+    stop(): void {
         this._processes.forEach(p => p.stop());
     }
 }
 
-module.exports = Worker;
+export default Worker;

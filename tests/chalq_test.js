@@ -4,8 +4,8 @@ const rewire = require("rewire");
 const sinon = require("sinon");
 const should = require("chai").should();
 
-const Chalq = rewire("../lib/chalq");
-const Task = require("../lib/task");
+const Chalq = rewire("../dist/chalq");
+const Task = require("../dist/task").default;
 
 describe("Chalq", function () {
     beforeEach(function () {
@@ -181,13 +181,14 @@ describe("Chalq", function () {
 
             Promise.all(promises)
                 .then((tasks) => {
-                    const found = Chalq.foo.find(tasks[2].id);
-
+                    return Promise.all([Chalq.foo.find(tasks[2].id), tasks]);
+                }).then(([found, tasks]) => {
                     found.id.should.equal(tasks[2].id);
-                    should.not.exist(Chalq.foo.find("noop"));
+                    return Chalq.foo.find("noop");
+                }).then((noop) => {
+                    should.not.exist(noop);
                     done();
-                })
-                .catch(done);
+                }).catch(done);
         });
     });
 
@@ -224,10 +225,8 @@ describe("Chalq", function () {
             const promises = _.times(6, n => Chalq.foo.run([n]));
 
             Promise.all(promises)
-                .then(() => {
-                    Chalq.foo.count().should.equal(6);
-                })
-                .then(done)
+                .then(() => Chalq.foo.count().then(count => count.should.equal(6)))
+                .then(() => done())
                 .catch(done);
         });
 
@@ -257,17 +256,19 @@ describe("Chalq", function () {
     });
 
     describe("runTask", function () {
-        it("should throw when not initialized", function () {
+        it("should throw when not initialized", function (done) {
             Chalq.destroy();
 
-            should.Throw(() => {
-                Chalq.runTask("foo", [5]);
-            }, "Chalq has not been initialized");
+            Chalq.runTask("foo", [5]).catch((e) => {
+                e.message.should.equal("Chalq has not been initialized");
+                done();
+            });
         });
-        it("should throw for an undefined task", function () {
-            should.Throw(() => {
-                Chalq.runTask("baz", [5]);
-            }, "Task 'baz' is not defined");
+        it("should throw for an undefined task", function (done) {
+            Chalq.runTask("baz", [5]).catch((e) => {
+                e.message.should.equal("Task 'baz' is not defined");
+                done();
+            }).catch(done);
         });
     });
 });

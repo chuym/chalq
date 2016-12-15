@@ -1,7 +1,7 @@
 const should = require("chai").should();
 
-const MemoryBroker = require("../../../lib/platforms/memory/broker");
-const Task = require("../../../lib/task");
+const MemoryBroker = require("../../../dist/platforms/memory/broker").default;
+const Task = require("../../../dist/task").default;
 
 describe("Memory Broker", function () {
     describe("constructor", function () {
