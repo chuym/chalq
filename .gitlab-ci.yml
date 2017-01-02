@@ -3,6 +3,9 @@ image: node:6.5.0
 services:
   - rabbitmq:3.6
 
+variables:
+  CHALQ_RABBITMQ_TEST: "amqp://rabbitmq"
+
 test:
   script:
     - npm install

@@ -4,8 +4,10 @@ const should = require("chai").should();
 const Broker = require("../../../dist/platforms/rabbitmq/broker").default;
 const Task = require("../../../dist/task").default;
 
+const host = process.env.CHALQ_RABBITMQ_TEST || "amqp://localhost";
+
 function cleanQueue(done) {
-    amqp.connect("amqp://rabbitmq").then((conn) => {
+    amqp.connect(host).then((conn) => {
         conn.createChannel().then((ch) => {
             ch.assertQueue("chalq_unit_test");
             ch.deleteQueue("chalq_unit_test").then(() => {
@@ -21,7 +23,7 @@ describe("RabbitMQ Broker", function () {
 
     describe("constructor", function () {
         it("should initialize a rabbitmq broker", function (done) {
-            const broker = new Broker("amqp://rabbitmq");
+            const broker = new Broker(host);
 
             broker.once("ready", done);
         });
@@ -29,7 +31,7 @@ describe("RabbitMQ Broker", function () {
 
     describe("enqueue", function () {
         it("should enqueue a task", function (done) {
-            const broker = new Broker("amqp://rabbitmq");
+            const broker = new Broker(host);
             const task = new Task("chalq_unit_test", [1, 2]);
 
             broker.once("ready", () => {
@@ -40,7 +42,7 @@ describe("RabbitMQ Broker", function () {
         });
 
         it("should reject if passed task is not of Task instance", function (done) {
-            const broker = new Broker("amqp://rabbitmq");
+            const broker = new Broker(host);
 
             broker.once("ready", () => {
                 broker.enqueue({ foo: "bar" })
@@ -52,7 +54,7 @@ describe("RabbitMQ Broker", function () {
 
     describe("dequeue", function () {
         it("should dequeue a task", function (done) {
-            const broker = new Broker("amqp://rabbitmq");
+            const broker = new Broker(host);
             const task = new Task("chalq_unit_test", [1, 2]);
 
             broker.once("ready", () => {
@@ -70,7 +72,7 @@ describe("RabbitMQ Broker", function () {
         });
 
         it("if empty, it should return null", function (done) {
-            const broker = new Broker("amqp://rabbitmq");
+            const broker = new Broker(host);
 
             broker.once("ready", () => {
                 broker.dequeue("chalq_unit_test")
