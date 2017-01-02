@@ -51,7 +51,7 @@ class RabbitMQBroker extends Broker {
     }
 
     async tasksCount(name: string): Promise<Number> {
-        const asserted = await this.publish.assertQueue(task.name);
+        const asserted = await this.publish.assertQueue(name);
 
         return asserted.messageCount;
     }
