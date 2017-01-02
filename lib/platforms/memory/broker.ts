@@ -1,4 +1,3 @@
-import { EventEmitter } from "events";
 import Task, { SerializedTask } from "../../task";
 import Broker from "../../broker";
 
