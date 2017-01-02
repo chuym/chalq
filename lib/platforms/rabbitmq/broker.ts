@@ -16,6 +16,8 @@ class RabbitMQBroker extends Broker {
             .then(([publish, consume]) => {
                 this.publish = publish;
                 this.consume = consume;
+
+                this.emit('ready');
             });
     }
 
