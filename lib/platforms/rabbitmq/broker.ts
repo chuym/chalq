@@ -37,6 +37,7 @@ class RabbitMQBroker extends Broker {
     }
 
     async dequeue(name: string): Promise<Task> {
+        await this.publish.assertQueue(name);
         const message = await this.consume.get(name, { noAck: false });
 
         if (isMessage(message)) {
