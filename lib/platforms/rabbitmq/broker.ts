@@ -75,7 +75,7 @@ class RabbitMQBroker extends Broker {
 }
 
 function isMessage(msg: any) : msg is Message {
-    return msg.contents !== undefined;
+    return msg.content !== undefined;
 }
 
 export default RabbitMQBroker;
