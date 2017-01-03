@@ -4,6 +4,7 @@
   "description": "a worker queue for nodejs",
   "main": "index.js",
   "scripts": {
+    "install": "tsc",
     "test": "tsc && istanbul cover _mocha tests/**/*_test.js"
   },
   "author": "Xavier Del Castillo <xavier@xdc.im>",
