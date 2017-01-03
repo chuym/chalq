@@ -96,7 +96,7 @@ class Chalq {
 }
 
 // Proxy event-related functions to the broker
-["on", "once", "removeListener", "removeAllListeners"].forEach((method) => {
+["on", "once", "listenerCount", "removeListener", "removeAllListeners", "eventNames"].forEach((method) => {
     Chalq[method] = (...args) => {
         if (!broker) throw new Error("Chalq has not been initialized");
 
