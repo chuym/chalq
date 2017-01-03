@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 
 import MemoryBroker from "./platforms/memory/broker";
+import RabbitMQBroker from "./platforms/rabbitmq/broker";
 
 import { BrokerConfig } from "./broker";
 
@@ -25,6 +26,9 @@ class Chalq {
         switch (config.broker.name) {
             case "memory":
                 broker = new MemoryBroker();
+                break;
+            case "rabbitmq":
+                broker = new RabbitMQBroker(config.broker.connectionString);
                 break;
             default:
                 throw new Error("Unknown broker type");
@@ -92,7 +96,7 @@ class Chalq {
 }
 
 // Proxy event-related functions to the broker
-["on", "once", "removeListener", "removeAllListeners"].forEach((method) => {
+["on", "once", "listenerCount", "removeListener", "removeAllListeners", "eventNames"].forEach((method) => {
     Chalq[method] = (...args) => {
         if (!broker) throw new Error("Chalq has not been initialized");
 

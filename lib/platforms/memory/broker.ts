@@ -8,6 +8,7 @@ class MemoryBroker extends Broker {
         super();
         this.setMaxListeners(Infinity);
         this.queues = new Map<String, Array<SerializedTask>>();
+        setImmediate(() => this.emit('ready'));
     }
 
     enqueue(task: Task): Promise<Task> {

@@ -2,7 +2,8 @@ import { EventEmitter } from "events";
 import Task from "./task";
 
 interface BrokerConfig {
-    name: string
+    name: string,
+    connectionString: string
 }
 
 abstract class Broker extends EventEmitter {
