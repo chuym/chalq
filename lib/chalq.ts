@@ -28,7 +28,7 @@ class Chalq {
                 broker = new MemoryBroker();
                 break;
             case "rabbitmq":
-                broker = new RabbitMQBroker("");
+                broker = new RabbitMQBroker(config.broker.connectionString);
                 break;
             default:
                 throw new Error("Unknown broker type");
