@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 
 import MemoryBroker from "./platforms/memory/broker";
+import RabbitMQBroker from "./platforms/rabbitmq/broker";
 
 import { BrokerConfig } from "./broker";
 
@@ -25,6 +26,9 @@ class Chalq {
         switch (config.broker.name) {
             case "memory":
                 broker = new MemoryBroker();
+                break;
+            case "rabbitmq":
+                broker = new RabbitMQBroker("");
                 break;
             default:
                 throw new Error("Unknown broker type");
